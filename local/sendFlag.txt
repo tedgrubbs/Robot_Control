@@ -1,0 +1,2 @@
+put GO_FLAG
+bye
