@@ -3,17 +3,15 @@
     This will get the robot command list from my website and then send them to the arduino
     microcontroller. Also this command is beautiful: stty -F /dev/ttyUSB0 -hupcl.
     It turns off hardware flow control off so the arduino won't reset when you echo to it.
-    SFTP calls are to let server know that the arduino has finished it's current command list
-    or has none.
 """
 
 import numpy as np
 import time
 from subprocess import call
-import os
+from rrb3 import *
 
-#initialize arduino to not reset with every echo connection
-call(["stty","-F","/dev/ttyACM0","-hupcl"])
+#creates rrb3 object using 9V supply and 3V motors
+rr = RRB3(9,3)
 
 #Let's server know that the bot has finished it's current queue of commands
 def callServer():
@@ -22,9 +20,14 @@ def callServer():
 #Sends command to arduino via serial port. Must send a string. Will always have to change ttyACM0 to the correct serial port. Sleep time is currently the same as Arduino's delay time, 200ms.
 def sendCMD(cmd):
     if cmd in ('f','b','l','r'):
-        commandString = ["echo"," \"",cmd,"\" ","> ", "/dev/ttyACM0"]
-        os.system(''.join(commandString))
-        time.sleep(0.2)
+	if cmd == 'f':
+		rr.forward(1,.5)
+	elif cmd == 'b':
+		rr.reverse(1,.5)
+	elif cmd == 'l':
+		rr.left(1,.5)
+	elif cmd == 'r':
+		rr.right(1,.5)
 
 def clearCommandList():
     call(["rm","output.txt"])
